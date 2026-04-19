@@ -1,7 +1,7 @@
 {
   "domain": "picnic_fr",
   "name": "Picnic Companion",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "config_flow": true,
   "documentation": "https://github.com/technoo10201/picnic-companion/blob/main/README.md",
   "issue_tracker": "https://github.com/technoo10201/picnic-companion/issues",
