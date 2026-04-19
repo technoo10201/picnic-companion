@@ -47,5 +47,6 @@ DATA_HISTORY = "history"
 DATA_DELIVERIES = "deliveries"
 DATA_SAVED_RECIPES = "saved_recipes"
 DATA_ORDERED_RECIPES = "ordered_recipes"
+DATA_CURRENT_DELIVERY = "current_delivery"
 
 SERVICE_ADD_RECIPE = "add_recipe_to_cart"

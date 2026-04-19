@@ -47,12 +47,22 @@ def parse_weight_grams(unit_quantity: str | None) -> float | None:
 from .const import (
     CONF_TOKEN_EXP,
     DATA_CART,
+    DATA_CURRENT_DELIVERY,
     DATA_DELIVERIES,
     DATA_HISTORY,
     DATA_SLOT,
     DOMAIN,
 )
 from .coordinator import PicnicFRCoordinator
+
+
+def _parse_iso(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        return datetime.fromisoformat(value)
+    except (TypeError, ValueError):
+        return None
 
 
 async def async_setup_entry(
@@ -72,6 +82,17 @@ async def async_setup_entry(
             PicnicTokenExpirySensor(coord, entry),
             PicnicHistoryProductsSensor(coord, entry),
             PicnicDeliveriesCountSensor(coord, entry),
+            PicnicTotalOrdersSensor(coord, entry),
+            PicnicNextDeliveryStartSensor(coord, entry),
+            PicnicNextDeliveryEndSensor(coord, entry),
+            PicnicTimeUntilDeliverySensor(coord, entry),
+            PicnicLiveEtaSensor(coord, entry),
+            PicnicDeliveryStatusSensor(coord, entry),
+            PicnicCurrentOrderTotalSensor(coord, entry),
+            PicnicCurrentOrderItemsSensor(coord, entry),
+            PicnicCurrentSlotKindSensor(coord, entry),
+            PicnicDeliveryHubSensor(coord, entry),
+            PicnicCutoffSensor(coord, entry),
         ]
     )
 
@@ -376,3 +397,202 @@ class PicnicDeliveriesCountSensor(_PicnicSensorBase):
         return len(self.coordinator.data.get(DATA_DELIVERIES) or [])
 
 
+
+
+# --- Pending delivery sensors ----------------------------------------------
+#
+# These read `DATA_CURRENT_DELIVERY` — the single delivery returned by
+# /deliveries/summary ["CURRENT"]. It's None when no order is pending.
+#
+# The `total_orders` one aggregates across every delivery in DATA_DELIVERIES
+# (a Picnic delivery can bundle 1-2 orders; we sum them).
+
+_IN_PROGRESS_STATUSES = {"CURRENT", "ANNOUNCED", "TRANSPORTING", "EN_ROUTE", "AT_DOOR"}
+
+
+def _current_order(delivery: dict | None) -> dict | None:
+    if not delivery:
+        return None
+    orders = delivery.get("orders") or []
+    return orders[0] if orders else None
+
+
+def _slot_kind(slot: dict | None) -> str | None:
+    if not slot:
+        return None
+    start = _parse_iso(slot.get("window_start"))
+    end = _parse_iso(slot.get("window_end"))
+    if not start or not end:
+        return None
+    return "eco" if (end - start).total_seconds() / 60 > 65 else "normal"
+
+
+class PicnicTotalOrdersSensor(_PicnicSensorBase):
+    """Total number of orders placed lifetime (historical + pending)."""
+
+    _key = "total_orders"
+    _attr_name = "Commandes totales"
+    _attr_state_class = SensorStateClass.TOTAL_INCREASING
+    _attr_icon = "mdi:receipt-text"
+
+    @property
+    def native_value(self) -> int:
+        deliveries = self.coordinator.data.get(DATA_DELIVERIES) or []
+        return sum(len(d.get("orders") or []) for d in deliveries)
+
+
+class PicnicNextDeliveryStartSensor(_PicnicSensorBase):
+    _key = "next_delivery_start"
+    _attr_name = "Prochaine livraison"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_icon = "mdi:truck-fast"
+
+    @property
+    def native_value(self) -> datetime | None:
+        d = self.coordinator.data.get(DATA_CURRENT_DELIVERY) or {}
+        return _parse_iso((d.get("slot") or {}).get("window_start"))
+
+
+class PicnicNextDeliveryEndSensor(_PicnicSensorBase):
+    _key = "next_delivery_end"
+    _attr_name = "Fin du créneau de livraison"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_icon = "mdi:truck-fast-outline"
+
+    @property
+    def native_value(self) -> datetime | None:
+        d = self.coordinator.data.get(DATA_CURRENT_DELIVERY) or {}
+        return _parse_iso((d.get("slot") or {}).get("window_end"))
+
+
+class PicnicTimeUntilDeliverySensor(_PicnicSensorBase):
+    """Minutes until the next delivery starts. Negative if already started."""
+
+    _key = "time_until_delivery"
+    _attr_name = "Livraison dans"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_device_class = SensorDeviceClass.DURATION
+    _attr_native_unit_of_measurement = "min"
+    _attr_icon = "mdi:timer-sand"
+
+    @property
+    def native_value(self) -> int | None:
+        d = self.coordinator.data.get(DATA_CURRENT_DELIVERY) or {}
+        start = _parse_iso((d.get("slot") or {}).get("window_start"))
+        if not start:
+            return None
+        delta = start - datetime.now(tz=timezone.utc)
+        return int(delta.total_seconds() / 60)
+
+
+class PicnicLiveEtaSensor(_PicnicSensorBase):
+    """Live ETA window start. Updated by Picnic as the driver progresses."""
+
+    _key = "live_eta"
+    _attr_name = "ETA livreur"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_icon = "mdi:map-marker-path"
+
+    @property
+    def native_value(self) -> datetime | None:
+        d = self.coordinator.data.get(DATA_CURRENT_DELIVERY) or {}
+        return _parse_iso((d.get("eta2") or {}).get("start"))
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        d = self.coordinator.data.get(DATA_CURRENT_DELIVERY) or {}
+        eta = d.get("eta2") or {}
+        end = _parse_iso(eta.get("end"))
+        return {"eta_end": end.isoformat() if end else None}
+
+
+class PicnicDeliveryStatusSensor(_PicnicSensorBase):
+    """Raw delivery status string (ANNOUNCED / CURRENT / EN_ROUTE / COMPLETED …)."""
+
+    _key = "delivery_status"
+    _attr_name = "Statut de la livraison"
+    _attr_icon = "mdi:truck-delivery-outline"
+
+    @property
+    def native_value(self) -> str | None:
+        d = self.coordinator.data.get(DATA_CURRENT_DELIVERY) or {}
+        return d.get("status") or "NONE"
+
+
+class PicnicCurrentOrderTotalSensor(_PicnicSensorBase):
+    _key = "current_order_total"
+    _attr_name = "Total de la commande en cours"
+    _attr_device_class = SensorDeviceClass.MONETARY
+    _attr_native_unit_of_measurement = CURRENCY_EURO
+    _attr_state_class = SensorStateClass.TOTAL
+    _attr_icon = "mdi:cash-register"
+
+    @property
+    def native_value(self) -> float | None:
+        order = _current_order(self.coordinator.data.get(DATA_CURRENT_DELIVERY))
+        if not order:
+            return None
+        total = order.get("total_price")
+        return round(total / 100, 2) if isinstance(total, int) else None
+
+
+class PicnicCurrentOrderItemsSensor(_PicnicSensorBase):
+    """Number of distinct product lines in the pending order."""
+
+    _key = "current_order_items"
+    _attr_name = "Articles dans la commande en cours"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_icon = "mdi:clipboard-list"
+
+    @property
+    def native_value(self) -> int | None:
+        order = _current_order(self.coordinator.data.get(DATA_CURRENT_DELIVERY))
+        if not order:
+            return None
+        # ORDER_LINE groups containing ORDER_ARTICLE items
+        n = 0
+        for line in order.get("items", []) or []:
+            for art in (line or {}).get("items", []) or []:
+                if (art or {}).get("type") == "ORDER_ARTICLE":
+                    n += 1
+        return n
+
+
+class PicnicCurrentSlotKindSensor(_PicnicSensorBase):
+    """`eco` (>65min window) or `normal` for the pending delivery's slot."""
+
+    _key = "current_slot_kind"
+    _attr_name = "Type de créneau en cours"
+    _attr_icon = "mdi:leaf"
+
+    @property
+    def native_value(self) -> str | None:
+        d = self.coordinator.data.get(DATA_CURRENT_DELIVERY) or {}
+        return _slot_kind(d.get("slot"))
+
+
+class PicnicDeliveryHubSensor(_PicnicSensorBase):
+    """Picnic fulfillment hub handling the delivery (e.g. 'LIE' = Lille)."""
+
+    _key = "delivery_hub"
+    _attr_name = "Hub de livraison"
+    _attr_icon = "mdi:warehouse"
+
+    @property
+    def native_value(self) -> str | None:
+        d = self.coordinator.data.get(DATA_CURRENT_DELIVERY) or {}
+        return (d.get("slot") or {}).get("hub_id")
+
+
+class PicnicCutoffSensor(_PicnicSensorBase):
+    """Timestamp after which the pending order can no longer be modified."""
+
+    _key = "cutoff"
+    _attr_name = "Modification possible jusqu'à"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_icon = "mdi:pencil-lock"
+
+    @property
+    def native_value(self) -> datetime | None:
+        d = self.coordinator.data.get(DATA_CURRENT_DELIVERY) or {}
+        return _parse_iso((d.get("slot") or {}).get("cut_off_time"))

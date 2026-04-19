@@ -36,6 +36,33 @@ The JWT is decoded client-side to store `iat` and `exp` in the config entry.
 | `sensor.produits_distincts_achetes` | Unique products across all past deliveries. Attribute `top_10` for the matcher |
 | `sensor.livraisons_recues` | Historical delivery count |
 
+#### Pending-delivery sensors (populated only when there is an active order)
+
+Picnic allows a single pending order at a time. The coordinator hits
+`/deliveries/summary ["CURRENT"]` and exposes these sensors driven by the
+result; they go to `unknown` when no order is pending.
+
+| Entity | State |
+|---|---|
+| `sensor.commandes_totales` | Lifetime number of orders placed (summed across all deliveries — a delivery can bundle 1-2 orders) |
+| `sensor.prochaine_livraison` | Timestamp — start of the delivery window |
+| `sensor.fin_du_creneau_de_livraison` | Timestamp — end of the delivery window |
+| `sensor.livraison_dans` | Duration (minutes) until the delivery window starts. Negative once the window has started |
+| `sensor.eta_livreur` | Timestamp — live ETA start (updated by Picnic as the driver moves). Attribute `eta_end` for the upper bound |
+| `sensor.statut_de_la_livraison` | Raw status string: `ANNOUNCED`, `CURRENT`, `EN_ROUTE`, `AT_DOOR`, `COMPLETED`, … (or `NONE` if no order) |
+| `sensor.total_de_la_commande_en_cours` | Pending order subtotal (€) |
+| `sensor.articles_dans_la_commande_en_cours` | Number of distinct `ORDER_ARTICLE` lines in the pending order |
+| `sensor.type_de_creneau_en_cours` | `eco` (window >65 min) or `normal` |
+| `sensor.hub_de_livraison` | Picnic fulfillment hub code (e.g. `LIE` for Lille) |
+| `sensor.modification_possible_jusqu_a` | Timestamp — cutoff after which the order can no longer be edited |
+
+### Binary sensors
+
+| Entity | On when |
+|---|---|
+| `binary_sensor.livraison_en_cours` | There is a pending delivery with a non-terminal status (anything except `COMPLETED` / `CANCELLED`). Device class: `moving` |
+| `binary_sensor.modification_de_la_commande_possible` | `now < slot.cut_off_time` — useful to trigger a "last-chance" notification a few minutes before the cutoff |
+
 ### Select
 
 | Entity | Description |
