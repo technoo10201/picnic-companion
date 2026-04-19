@@ -23,6 +23,7 @@ from .const import (
     DATA_CART,
     DATA_CURRENT_DELIVERY,
     DATA_DELIVERIES,
+    DATA_DELIVERY_POSITION,
     DATA_HISTORY,
     DATA_ORDERED_RECIPES,
     DATA_SAVED_RECIPES,
@@ -32,6 +33,10 @@ from .const import (
     DOMAIN,
     HISTORY_REFRESH_INTERVAL,
 )
+
+# Statuses where the driver may be actively rolling — only poll /position
+# during these to avoid hammering Picnic with useless calls.
+_IN_TRANSIT_STATUSES = {"CURRENT", "TRANSPORTING", "EN_ROUTE", "AT_DOOR"}
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -99,6 +104,20 @@ class PicnicFRCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             _LOGGER.warning("Current-delivery fetch failed: %s", exc)
             current_delivery = None
 
+        # Only fetch GPS position when the driver is likely en-route.
+        # Picnic returns null before that, and hammering the endpoint at
+        # every poll otherwise would be wasteful.
+        delivery_position = None
+        if current_delivery:
+            status = (current_delivery.get("status") or "").upper()
+            if status in _IN_TRANSIT_STATUSES:
+                try:
+                    delivery_position = await self.client.delivery_position(
+                        current_delivery["delivery_id"]
+                    )
+                except PicnicError as exc:
+                    _LOGGER.debug("Position fetch failed: %s", exc)
+
         # Refresh saved + ordered recipes alongside the history (same cadence)
         if self._saved_recipes_cache is None or self._needs_history_refresh():
             await self._refresh_recipe_lists()
@@ -124,6 +143,7 @@ class PicnicFRCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             DATA_HISTORY: self._history_cache or {},
             DATA_DELIVERIES: deliveries,
             DATA_CURRENT_DELIVERY: current_delivery,
+            DATA_DELIVERY_POSITION: delivery_position,
             DATA_SAVED_RECIPES: self._saved_recipes_cache or [],
             DATA_ORDERED_RECIPES: self._ordered_recipes_cache or [],
         }

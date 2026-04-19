@@ -135,6 +135,14 @@ class PicnicAsyncClient:
         items = await self.hass.async_add_executor_job(self._client.delivery.current)
         return items[0] if items else None
 
+    async def delivery_position(self, delivery_id: str) -> dict[str, Any] | None:
+        """Live driver position. Picnic returns `null` when the driver
+        hasn't started the run yet — we normalize that to None."""
+        result = await self.hass.async_add_executor_job(
+            self._client.delivery.position, delivery_id
+        )
+        return result if isinstance(result, dict) else None
+
     # --- Catalog -----------------------------------------------------------
 
     async def search_flat(self, query: str) -> list[dict]:

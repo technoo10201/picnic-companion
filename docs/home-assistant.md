@@ -63,6 +63,22 @@ result; they go to `unknown` when no order is pending.
 | `binary_sensor.livraison_en_cours` | There is a pending delivery with a non-terminal status (anything except `COMPLETED` / `CANCELLED`). Device class: `moving` |
 | `binary_sensor.modification_de_la_commande_possible` | `now < slot.cut_off_time` — useful to trigger a "last-chance" notification a few minutes before the cutoff |
 
+### Device tracker
+
+| Entity | Purpose |
+|---|---|
+| `device_tracker.livreur_picnic` | Live GPS position of the driver handling your pending delivery. The coordinator only hits `/deliveries/{id}/position` while the status is one of `CURRENT` / `TRANSPORTING` / `EN_ROUTE` / `AT_DOOR`, so Picnic isn't polled unnecessarily before the run starts. Unavailable (`available=false`) whenever no coordinates are returned — the map card will hide it automatically then. Extra attributes: `delivery_id`, `delivery_status`, and `heading` / `speed` / `timestamp` / `eta_start` / `eta_end` when Picnic includes them; anything else is passed through as `raw_extra` |
+
+To show it on a map, add a **Map** Lovelace card:
+
+```yaml
+type: map
+entities:
+  - device_tracker.livreur_picnic
+hours_to_show: 2
+default_zoom: 14
+```
+
 ### Select
 
 | Entity | Description |
