@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="custom_components/picnic_fr/icon.png" alt="Picnic Companion" width="128" />
+</p>
+
 # Picnic Companion
 
 An **unofficial** Home Assistant custom integration for the
@@ -83,6 +87,19 @@ users can just search "Picnic Companion" directly in HACS.
     └── contributing.md                # branching, commits, translations
 ```
 
-## License
+## License & trademarks
 
-MIT. See [LICENSE](LICENSE).
+Code: MIT — see [LICENSE](LICENSE).
+
+The Picnic name and logo are trademarks of Picnic International B.V. and are
+used here solely for identification under nominative fair use. See
+[TRADEMARKS.md](TRADEMARKS.md).
+
+## Getting the logo into Home Assistant's integrations UI
+
+HACS picks up `custom_components/picnic_fr/icon.png` for its own list
+automatically. For the logo to also appear on the Home Assistant
+*Settings → Devices & services* tile, the domain has to be registered in
+the [home-assistant/brands](https://github.com/home-assistant/brands) repo
+under `custom_integrations/picnic_fr/`. That step requires a separate PR
+there and upstream review — on roadmap, not shipped yet.
