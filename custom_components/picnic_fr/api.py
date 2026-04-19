@@ -129,6 +129,12 @@ class PicnicAsyncClient:
     async def deliveries(self) -> list[dict]:
         return await self.hass.async_add_executor_job(self._client.delivery.list)
 
+    async def current_delivery(self) -> dict[str, Any] | None:
+        """Return the single pending delivery, or None if there's nothing in
+        flight. Picnic allows only one pending order per household."""
+        items = await self.hass.async_add_executor_job(self._client.delivery.current)
+        return items[0] if items else None
+
     # --- Catalog -----------------------------------------------------------
 
     async def search_flat(self, query: str) -> list[dict]:

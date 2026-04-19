@@ -21,6 +21,7 @@ from .const import (
     CONF_POLL_INTERVAL,
     CONF_TOKEN_EXP,
     DATA_CART,
+    DATA_CURRENT_DELIVERY,
     DATA_DELIVERIES,
     DATA_HISTORY,
     DATA_ORDERED_RECIPES,
@@ -92,6 +93,12 @@ class PicnicFRCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except PicnicError:
             deliveries = []
 
+        try:
+            current_delivery = await self.client.current_delivery()
+        except PicnicError as exc:
+            _LOGGER.warning("Current-delivery fetch failed: %s", exc)
+            current_delivery = None
+
         # Refresh saved + ordered recipes alongside the history (same cadence)
         if self._saved_recipes_cache is None or self._needs_history_refresh():
             await self._refresh_recipe_lists()
@@ -116,6 +123,7 @@ class PicnicFRCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             DATA_SLOTS: slots,
             DATA_HISTORY: self._history_cache or {},
             DATA_DELIVERIES: deliveries,
+            DATA_CURRENT_DELIVERY: current_delivery,
             DATA_SAVED_RECIPES: self._saved_recipes_cache or [],
             DATA_ORDERED_RECIPES: self._ordered_recipes_cache or [],
         }
