@@ -1,0 +1,60 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Picnic Companion — Inloggen",
+        "description": "Voer je Picnic-inloggegevens in. Als je apparaat onbekend is, stuurt Picnic in de volgende stap een sms-code. Het sessie-token is 180 dagen geldig (~6 maanden); je wordt 7 dagen vóór verloop gewaarschuwd.",
+        "data": {
+          "email": "E-mailadres",
+          "password": "Wachtwoord",
+          "country": "Land"
+        }
+      },
+      "two_factor": {
+        "title": "Sms-verificatiecode",
+        "description": "Picnic heeft zojuist een code gestuurd naar het telefoonnummer dat bij {email} hoort. Vul hem hieronder in.",
+        "data": {
+          "code": "Sms-code (6 cijfers)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Opnieuw inloggen bij Picnic",
+        "description": "Het Picnic-token voor {email} is verlopen of bijna verlopen. Ga door om opnieuw in te loggen."
+      }
+    },
+    "error": {
+      "invalid_auth": "Verkeerd e-mailadres of wachtwoord.",
+      "invalid_2fa": "Verkeerde sms-code.",
+      "sms_failed": "Kan de sms niet verzenden. Probeer het over een paar minuten opnieuw.",
+      "cannot_connect": "Kan Picnic niet bereiken. Controleer je verbinding."
+    },
+    "abort": {
+      "already_configured": "Deze Picnic-account is al geconfigureerd.",
+      "reauth_successful": "Opnieuw inloggen is gelukt."
+    }
+  },
+  "issues": {
+    "token_expiring": {
+      "title": "Picnic-token verloopt binnenkort",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Picnic-token vernieuwen",
+            "description": "Het Picnic-token verloopt over {days} dag(en). Ga door om opnieuw in te loggen (er wordt een nieuwe sms-code verzonden)."
+          }
+        }
+      }
+    },
+    "token_expired": {
+      "title": "Picnic-token verlopen",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Opnieuw inloggen vereist",
+            "description": "Het Picnic-token is verlopen. Ga door om opnieuw in te loggen."
+          }
+        }
+      }
+    }
+  }
+}

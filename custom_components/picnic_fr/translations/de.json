@@ -1,0 +1,60 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Picnic Companion — Anmelden",
+        "description": "Gib deine Picnic-Zugangsdaten ein. Wenn dein Gerät unbekannt ist, wird im nächsten Schritt ein SMS-Code gesendet. Das Sitzungs-Token ist 180 Tage gültig (~6 Monate); 7 Tage vor Ablauf wirst du benachrichtigt.",
+        "data": {
+          "email": "E-Mail-Adresse",
+          "password": "Passwort",
+          "country": "Land"
+        }
+      },
+      "two_factor": {
+        "title": "SMS-Verifizierungscode",
+        "description": "Picnic hat gerade einen Code an die mit {email} verknüpfte Telefonnummer geschickt. Bitte unten eingeben.",
+        "data": {
+          "code": "SMS-Code (6 Ziffern)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Picnic erneut anmelden",
+        "description": "Das Picnic-Token für {email} ist abgelaufen oder läuft bald ab. Bitte erneut anmelden."
+      }
+    },
+    "error": {
+      "invalid_auth": "Falsche E-Mail oder falsches Passwort.",
+      "invalid_2fa": "Falscher SMS-Code.",
+      "sms_failed": "SMS-Versand fehlgeschlagen. Bitte in ein paar Minuten erneut versuchen.",
+      "cannot_connect": "Keine Verbindung zu Picnic. Bitte Verbindung prüfen."
+    },
+    "abort": {
+      "already_configured": "Dieses Picnic-Konto ist bereits konfiguriert.",
+      "reauth_successful": "Erneute Anmeldung erfolgreich."
+    }
+  },
+  "issues": {
+    "token_expiring": {
+      "title": "Picnic-Token läuft bald ab",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Picnic-Token erneuern",
+            "description": "Das Picnic-Token läuft in {days} Tag(en) ab. Bitte erneut anmelden (neuer SMS-Code wird benötigt)."
+          }
+        }
+      }
+    },
+    "token_expired": {
+      "title": "Picnic-Token abgelaufen",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Neue Anmeldung erforderlich",
+            "description": "Das Picnic-Token ist abgelaufen. Bitte erneut anmelden."
+          }
+        }
+      }
+    }
+  }
+}

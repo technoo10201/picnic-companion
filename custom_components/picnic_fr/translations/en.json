@@ -1,0 +1,60 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Picnic Companion — Login",
+        "description": "Enter your Picnic credentials. If your device is unknown, an SMS code will be sent at the next step. The session token is valid for 180 days (~6 months); you'll be warned 7 days before expiry.",
+        "data": {
+          "email": "Email address",
+          "password": "Password",
+          "country": "Country"
+        }
+      },
+      "two_factor": {
+        "title": "SMS verification code",
+        "description": "Picnic just sent a code via SMS to the phone number associated with {email}. Enter it below.",
+        "data": {
+          "code": "SMS code (6 digits)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Picnic re-login required",
+        "description": "The Picnic token for {email} has expired or is about to. Continue to re-enter your credentials."
+      }
+    },
+    "error": {
+      "invalid_auth": "Wrong email or password.",
+      "invalid_2fa": "Wrong SMS code.",
+      "sms_failed": "Could not trigger the SMS. Try again in a few minutes.",
+      "cannot_connect": "Cannot reach Picnic. Check your connection."
+    },
+    "abort": {
+      "already_configured": "This Picnic account is already configured.",
+      "reauth_successful": "Re-authentication successful."
+    }
+  },
+  "issues": {
+    "token_expiring": {
+      "title": "Picnic token expiring soon",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Renew Picnic token",
+            "description": "The Picnic token expires in {days} day(s). Continue to re-authenticate (a new SMS code will be required)."
+          }
+        }
+      }
+    },
+    "token_expired": {
+      "title": "Picnic token expired",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Picnic re-authentication required",
+            "description": "The Picnic token has expired. Continue to re-authenticate."
+          }
+        }
+      }
+    }
+  }
+}

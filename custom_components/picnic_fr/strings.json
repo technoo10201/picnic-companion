@@ -1,0 +1,70 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Picnic Companion — Connexion",
+        "description": "Entre tes identifiants Picnic. Si ton appareil n'est pas reconnu, un code SMS te sera demandé à l'étape suivante.",
+        "data": {
+          "email": "Adresse email",
+          "password": "Mot de passe",
+          "country": "Pays"
+        }
+      },
+      "two_factor": {
+        "title": "Code de vérification SMS",
+        "description": "Picnic vient d'envoyer un code par SMS au téléphone associé à {email}. Entre-le ci-dessous.",
+        "data": {
+          "code": "Code SMS (6 chiffres)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Re-connexion Picnic requise",
+        "description": "Le token Picnic pour {email} a expiré ou approche de l'expiration. Continue pour ressaisir tes identifiants."
+      }
+    },
+    "error": {
+      "invalid_auth": "Email ou mot de passe incorrect.",
+      "invalid_2fa": "Code SMS incorrect.",
+      "sms_failed": "Impossible de déclencher l'envoi du SMS. Réessaie dans quelques minutes.",
+      "cannot_connect": "Impossible de joindre Picnic. Vérifie ta connexion."
+    },
+    "abort": {
+      "already_configured": "Ce compte Picnic est déjà configuré.",
+      "reauth_successful": "Re-connexion réussie."
+    }
+  },
+  "issues": {
+    "token_expiring": {
+      "title": "Token Picnic bientôt expiré",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Renouveler le token Picnic",
+            "description": "Le token Picnic expire dans {days} jour(s). Continue pour te reconnecter (un nouveau code SMS te sera demandé)."
+          }
+        }
+      }
+    },
+    "token_expired": {
+      "title": "Token Picnic expiré",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Reconnexion Picnic nécessaire",
+            "description": "Le token Picnic a expiré. Continue pour te reconnecter."
+          }
+        }
+      }
+    }
+  },
+  "services": {
+    "push_list": {
+      "name": "Pousser une liste",
+      "description": "Résout chaque ligne via le matcher et ajoute au panier."
+    },
+    "clear_cart": { "name": "Vider le panier", "description": "Vide complètement le panier Picnic." },
+    "book_slot": { "name": "Réserver un créneau", "description": "Réserve un créneau de livraison par son id." },
+    "checkout": { "name": "Valider la commande", "description": "Place la commande. Action irréversible." },
+    "refresh_history": { "name": "Rafraîchir l'historique", "description": "Force la mise à jour de l'historique des commandes (pour le matcher)." }
+  }
+}

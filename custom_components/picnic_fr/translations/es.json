@@ -1,0 +1,60 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Picnic Companion — Iniciar sesión",
+        "description": "Introduce tus credenciales de Picnic. Si tu dispositivo no es reconocido, se enviará un código por SMS en el siguiente paso. El token de sesión es válido durante 180 días (~6 meses); se te avisará 7 días antes de la expiración.",
+        "data": {
+          "email": "Correo electrónico",
+          "password": "Contraseña",
+          "country": "País"
+        }
+      },
+      "two_factor": {
+        "title": "Código de verificación SMS",
+        "description": "Picnic acaba de enviar un código al número de teléfono asociado a {email}. Introdúcelo abajo.",
+        "data": {
+          "code": "Código SMS (6 dígitos)"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reconexión Picnic necesaria",
+        "description": "El token Picnic de {email} ha expirado o está a punto de expirar. Continúa para volver a introducir tus credenciales."
+      }
+    },
+    "error": {
+      "invalid_auth": "Correo o contraseña incorrectos.",
+      "invalid_2fa": "Código SMS incorrecto.",
+      "sms_failed": "No se pudo enviar el SMS. Inténtalo dentro de unos minutos.",
+      "cannot_connect": "No se puede conectar con Picnic. Revisa tu conexión."
+    },
+    "abort": {
+      "already_configured": "Esta cuenta de Picnic ya está configurada.",
+      "reauth_successful": "Reconexión correcta."
+    }
+  },
+  "issues": {
+    "token_expiring": {
+      "title": "El token de Picnic expira pronto",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Renovar token de Picnic",
+            "description": "El token de Picnic expira en {days} día(s). Continúa para volver a autenticarte (se pedirá un nuevo código SMS)."
+          }
+        }
+      }
+    },
+    "token_expired": {
+      "title": "Token de Picnic expirado",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Autenticación necesaria",
+            "description": "El token de Picnic ha expirado. Continúa para volver a iniciar sesión."
+          }
+        }
+      }
+    }
+  }
+}

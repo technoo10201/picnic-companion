@@ -1,0 +1,7 @@
+{
+  "name": "Picnic Companion",
+  "render_readme": true,
+  "homeassistant": "2024.11.0",
+  "country": ["FR", "NL", "DE", "BE"],
+  "zip_release": false
+}

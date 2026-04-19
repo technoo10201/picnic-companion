@@ -1,0 +1,121 @@
+push_list:
+  name: Pousser une liste de courses
+  description: >
+    Résout chaque ligne via le matcher (catalogue × historique) et ajoute les
+    produits au panier Picnic. Les chaînes simples sont prises avec count=1 ;
+    pour préciser une quantité, utiliser un dict {query, count}.
+  fields:
+    items:
+      name: Items
+      description: Liste de chaînes ou de dicts {query, count}.
+      required: true
+      example:
+        - "bananes"
+        - { query: "fromage blanc 0% paturages", count: 2 }
+      selector:
+        object:
+    clear_first:
+      name: Vider le panier d'abord
+      description: Si activé, vide complètement le panier avant d'ajouter.
+      default: false
+      selector:
+        boolean:
+    entry_id:
+      name: Config entry id
+      description: Optionnel — utile si plusieurs comptes Picnic configurés.
+      required: false
+      selector:
+        text:
+
+clear_cart:
+  name: Vider le panier
+  fields:
+    entry_id:
+      name: Config entry id
+      required: false
+      selector:
+        text:
+
+book_slot:
+  name: Réserver un créneau de livraison
+  fields:
+    slot_id:
+      name: Slot ID
+      required: true
+      selector:
+        text:
+    entry_id:
+      name: Config entry id
+      required: false
+      selector:
+        text:
+
+checkout:
+  name: Valider le panier (commander)
+  description: >
+    Place la commande. Le panier doit avoir un créneau réservé. Action
+    irréversible — à utiliser avec précaution.
+  fields:
+    entry_id:
+      name: Config entry id
+      required: false
+      selector:
+        text:
+
+refresh_history:
+  name: Rafraîchir l'historique des commandes
+  fields:
+    entry_id:
+      name: Config entry id
+      required: false
+      selector:
+        text:
+
+arm_clear_cart:
+  name: "Vider le panier — Armer"
+  description: >
+    Arme la confirmation de vidage du panier. Tu as 10 secondes pour appeler
+    confirm_clear_cart. À utiliser en hold_action sur une carte tile.
+  fields:
+    entry_id:
+      required: false
+      selector:
+        text:
+
+add_recipe_to_cart:
+  name: Ajouter une recette au panier
+  description: >
+    Ajoute tous les ingrédients d'une recette aimée au panier (count=1 par
+    ingrédient). recipe_id = l'id de la recette (visible dans l'attribut
+    `recipes` du capteur sensor.recettes_aimees).
+  fields:
+    recipe_id:
+      name: Recipe ID
+      required: true
+      example: "630c58a802a5f437dce4b762"
+      selector:
+        text:
+    portions:
+      name: Portions
+      description: Nombre de portions souhaité (par défaut, valeur définie par Picnic).
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 12
+    entry_id:
+      required: false
+      selector:
+        text:
+
+confirm_clear_cart:
+  name: "Vider le panier — Confirmer"
+  description: >
+    Confirme le vidage du panier. N'a d'effet que si arm_clear_cart a été
+    appelé dans les 10 dernières secondes. À utiliser en tap_action sur une
+    carte tile.
+  fields:
+    entry_id:
+      required: false
+      selector:
+        text:

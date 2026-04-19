@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Home Assistant runtime config (logs, DB, entries with secrets)
+homeassistant/config/
+
+# Claude Code scratch area
+.claude/
+
+# Local scratch
+/tmp/
+*.log

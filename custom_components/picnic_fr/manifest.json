@@ -1,0 +1,13 @@
+{
+  "domain": "picnic_fr",
+  "name": "Picnic Companion",
+  "version": "0.1.0",
+  "config_flow": true,
+  "documentation": "https://github.com/technoo10201/picnic-companion/blob/main/README.md",
+  "issue_tracker": "https://github.com/technoo10201/picnic-companion/issues",
+  "codeowners": ["@technoo10201"],
+  "iot_class": "cloud_polling",
+  "integration_type": "service",
+  "requirements": [],
+  "dependencies": ["repairs"]
+}
